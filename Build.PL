@@ -12,6 +12,7 @@ my $builder = Module::Build->new(
     },
     build_requires      => {
         'Test::More' => 0.88,
+        'File::Temp' => 0,
     },
     requires => {
         'perl' => '5.008001',
@@ -19,6 +20,7 @@ my $builder = Module::Build->new(
         'IO::Stty' => 0,
         'Digest::HMAC_SHA1' => 0,
         'Pod::Usage' => 0,
+        'POSIX' => 0,
     },
     script_files        => [ 'script/mypasswd' ],
     add_to_cleanup      => [ 'App-MyPasswd-*' ],

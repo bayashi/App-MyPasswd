@@ -4,6 +4,7 @@ use warnings;
 use Getopt::Long qw/GetOptionsFromArray/;
 use IO::Stty;
 use Digest::HMAC_SHA1 qw//;
+use POSIX 'strftime';
 
 our $VERSION = 0.01;
 
@@ -13,10 +14,11 @@ sub new {
 }
 
 sub run {
+    my $self = shift;
     my @argv = @_;
 
     my $config = +{};
-    _merge_opt($config, \@argv);
+    _merge_opt($config, @argv);
 
     _input_master_password($config);
 
@@ -38,8 +40,15 @@ sub run {
     }
 
     $src_hash = substr($src_hash, 0, $config->{length});
-
     print "use this: $src_hash\n";
+
+    if ($config->{log}) {
+        open my $fh, '>>', $config->{log}
+            or die "could not open $config->{log}: $!";
+        print $fh strftime("%Y/%m/%d %H:%M:%S", localtime). " @argv";
+        close $fh;
+    }
+
     return $src_hash;
 }
 
@@ -114,17 +123,18 @@ sub _stty {
 }
 
 sub _merge_opt {
-    my ($config, $argv) = @_;
+    my ($config, @argv) = @_;
 
     Getopt::Long::Configure('bundling');
     GetOptionsFromArray(
-        $argv,
+        \@argv,
         's|salt=s'    => \$config->{salt},
         'l|length=i'  => \$config->{length},
         'only-number' => \$config->{only_number},
         'only-uc'     => \$config->{only_uc},
         'only-lc'     => \$config->{only_lc},
         'no-symbol'   => \$config->{no_symbol},
+        'log=s'       => \$config->{log},
         'h|help'      => sub {
             _show_usage(1);
         },

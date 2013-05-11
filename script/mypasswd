@@ -23,6 +23,7 @@ mypasswd - generate your password
          --only-uc       used only upper case
          --only-lc       used only lower case
          --no-symbol     switch a symbol to number
+         --log           log file path of execute history
     -h,  --help          show this help
     -v,  --version       show the version
 
