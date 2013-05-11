@@ -45,7 +45,7 @@ sub run {
     if ($config->{log}) {
         open my $fh, '>>', $config->{log}
             or die "could not open $config->{log}: $!";
-        print $fh strftime("%Y/%m/%d %H:%M:%S", localtime). " @argv";
+        print $fh strftime("%Y/%m/%d %H:%M:%S", localtime). " @argv". "\n";
         close $fh;
     }
 
