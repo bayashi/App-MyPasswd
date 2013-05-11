@@ -1,11 +1,60 @@
 use strict;
 use warnings;
-use Test::More 0.88;
+use Test::More;
 
 use App::MyPasswd;
 
-can_ok 'App::MyPasswd', qw/new/;
+{
+    my $mypasswd = App::MyPasswd->new;
+    is ref($mypasswd), 'App::MyPasswd', 'new';
+}
 
-# write more tests
+{
+    my $command = 'script/mypasswd';
+
+    if ($ENV{MYPASSWD_ALL_TEST}) {
+        # version
+        system(
+            $^X, (map { "-I$_" } @INC),
+            $command,
+            '--version'
+        );
+        is $?, 256, '--version';
+        system(
+            $^X, (map { "-I$_" } @INC),
+            $command,
+            '-v'
+        );
+        is $?, 256, '-v';
+
+        # help
+        system(
+            $^X, (map { "-I$_" } @INC),
+            $command,
+            '--help'
+        );
+        is $?, 256, '--help';
+        system(
+            $^X, (map { "-I$_" } @INC),
+            $command,
+            '-h'
+        );
+        is $?, 256, '-h';
+
+        # invalid option
+        system(
+            $^X, (map { "-I$_" } @INC),
+            $command,
+            "--hoge"
+        );
+        is $?, 512, 'invalid option';
+        system(
+            $^X, (map { "-I$_" } @INC),
+            $command,
+            "-q 1"
+        );
+        is $?, 512, 'invalid option';
+    }
+}
 
 done_testing;

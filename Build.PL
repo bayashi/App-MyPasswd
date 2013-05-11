@@ -15,8 +15,12 @@ my $builder = Module::Build->new(
     },
     requires => {
         'perl' => '5.008001',
-        'Carp' => 0,
+        'Getopt::Long' => 2.38,
+        'IO::Stty' => 0,
+        'Digest::HMAC_SHA1' => 0,
+        'Pod::Usage' => 0,
     },
+    script_files        => [ 'script/mypasswd' ],
     add_to_cleanup      => [ 'App-MyPasswd-*' ],
     meta_merge     => {
       resources => {

@@ -1,15 +1,148 @@
 package App::MyPasswd;
 use strict;
 use warnings;
-use Carp qw/croak/;
+use Getopt::Long qw/GetOptionsFromArray/;
+use IO::Stty;
+use Digest::HMAC_SHA1 qw//;
 
-our $VERSION = '0.01';
+our $VERSION = 0.01;
 
 sub new {
     my $class = shift;
-    my $args  = shift || +{};
+    bless +{}, $class;
+}
 
-    bless $args, $class;
+sub run {
+    my @argv = @_;
+
+    my $config = +{};
+    _merge_opt($config, \@argv);
+
+    _input_master_password($config);
+
+    my $digest = Digest::HMAC_SHA1->new($config->{master_password});
+    my $src_hash = $digest->add($config->{salt})->b64digest;
+
+    if ($config->{only_number}) {
+        $src_hash = _only_number($src_hash);
+    }
+    elsif ($config->{only_uc}) {
+        $src_hash = _only_case($src_hash, 'uc');
+    }
+    elsif ($config->{only_lc}) {
+        $src_hash = _only_case($src_hash, 'lc');
+    }
+
+    if ($config->{no_symbol}) {
+        $src_hash = _no_symbol($src_hash);
+    }
+
+    $src_hash = substr($src_hash, 0, $config->{length});
+
+    print "use this: $src_hash\n";
+    return $src_hash;
+}
+
+sub _no_symbol {
+    my $src = shift;
+
+    my $result = '';
+    for my $str (split '', $src) {
+        $str =~ s!^([^a-zA-Z0-9])$!ord($1) % 10!e;
+        $result .= $str;
+    }
+
+    return $result;
+}
+
+sub _only_number {
+    my $src = shift;
+
+    my $result = '';
+    for my $str (split '', $src) {
+        $result .= ($str =~ /^\d+$/) ? $str : ord($str) % 10;
+    }
+
+    return $result;
+}
+
+sub _only_case {
+    my $src  = shift;
+    my $case = shift || 'uc';
+
+    my $result = '';
+    for my $str (split '', $src) {
+        $result .= $case eq 'uc' ? uc $str : lc $str;
+    }
+
+    return $result;
+}
+
+sub _input_master_password {
+    my $config = shift;
+
+    my($input, $input_again);
+
+    local $SIG{INT} = sub { _stty('echo'); exit; };
+    _stty('-echo');
+
+_INPUT:
+    print "Input master password:\n";
+    $input = <STDIN> || '';
+    chomp($input);
+
+    print "Again, input same master password:\n";
+    $input_again = <STDIN> || '';
+    chomp($input_again);
+
+    if ($input ne $input_again) {
+        print "[Err] Your passwords are NOT same. Try to input again.\n\n";
+        $input = $input_again = '';
+        goto _INPUT;
+    }
+
+    _stty('echo');
+
+    print "$input\n";
+
+    $config->{master_password} = $input;
+}
+
+sub _stty {
+    my $echo = shift;
+    IO::Stty::stty(\*STDIN, $echo || 'echo');
+}
+
+sub _merge_opt {
+    my ($config, $argv) = @_;
+
+    Getopt::Long::Configure('bundling');
+    GetOptionsFromArray(
+        $argv,
+        's|salt=s'    => \$config->{salt},
+        'l|length=i'  => \$config->{length},
+        'only-number' => \$config->{only_number},
+        'only-uc'     => \$config->{only_uc},
+        'only-lc'     => \$config->{only_lc},
+        'no-symbol'   => \$config->{no_symbol},
+        'h|help'      => sub {
+            _show_usage(1);
+        },
+        'v|version'   => sub {
+            print "$0 $VERSION\n";
+            exit 1;
+        },
+    ) or _show_usage(2);
+
+    $config->{length} ||= 8;
+    $config->{digest} ||= 'sha1';
+}
+
+sub _show_usage {
+    my $exitval = shift;
+
+    require Pod::Usage;
+    Pod::Usage::pod2usage($exitval);
 }
 
 
@@ -19,17 +152,29 @@ __END__
 
 =head1 NAME
 
-App::MyPasswd - one line description
+App::MyPasswd - generate your password
 
 
 =head1 SYNOPSIS
 
     use App::MyPasswd;
+    my $mypasswd = App::MyPasswd->new->run(@ARGV);
 
 
 =head1 DESCRIPTION
 
-App::MyPasswd is
+See: L<mypasswd> command.
+
+
+=head1 METHODS
+
+=head2 new
+
+constractor
+
+=head2 run
+
+execute main routine
 
 
 =head1 REPOSITORY
@@ -45,7 +190,10 @@ Dai Okabayashi E<lt>bayashi@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
-L<Other::Module>
+This script was inspired from below entry(in Japanese).
+<http://d.hatena.ne.jp/kazuhooku/20130509/1368071543>
+
+L<mypasswd>
 
 
 =head1 LICENSE
