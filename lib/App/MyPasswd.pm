@@ -25,6 +25,27 @@ sub run {
     my $digest = Digest::HMAC_SHA1->new($config->{master_password});
     my $src_hash = $digest->add($config->{salt})->b64digest;
 
+    $src_hash = _filter_hash($src_hash, $config);
+
+    print "use this: $src_hash\n";
+
+    _logging_history($config, @argv) if $config->{log};
+
+    return $src_hash;
+}
+
+sub _logging_history {
+    my ($config, @argv) = @_;
+
+    open my $fh, '>>', $config->{log}
+        or die "could not open $config->{log}: $!";
+    print $fh strftime("%Y/%m/%d %H:%M:%S", localtime). " @argv". "\n";
+    close $fh;
+}
+
+sub _filter_hash {
+    my ($src_hash, $config) = @_;
+
     if ($config->{only_number}) {
         $src_hash = _only_number($src_hash);
     }
@@ -40,14 +61,6 @@ sub run {
     }
 
     $src_hash = substr($src_hash, 0, $config->{length});
-    print "use this: $src_hash\n";
-
-    if ($config->{log}) {
-        open my $fh, '>>', $config->{log}
-            or die "could not open $config->{log}: $!";
-        print $fh strftime("%Y/%m/%d %H:%M:%S", localtime). " @argv". "\n";
-        close $fh;
-    }
 
     return $src_hash;
 }
