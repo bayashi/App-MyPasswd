@@ -76,8 +76,7 @@ sub _only_number {
 }
 
 sub _only_case {
-    my $src  = shift;
-    my $case = shift || 'uc';
+    my ($src, $case)  = @_;
 
     my $result = '';
     for my $str (split '', $src) {
@@ -97,12 +96,12 @@ sub _input_master_password {
 
 _INPUT:
     print "Input master password:\n";
-    $input = <STDIN> || '';
+    $input = <STDIN>;
     chomp($input);
     print "$input\n" if $config->{show_input};
 
     print "Again, input same master password:\n";
-    $input_again = <STDIN> || '';
+    $input_again = <STDIN>;
     chomp($input_again);
     print "$input\n" if $config->{show_input};
 
@@ -119,7 +118,7 @@ _INPUT:
 
 sub _stty {
     my $echo = shift;
-    IO::Stty::stty(\*STDIN, $echo || 'echo');
+    IO::Stty::stty(\*STDIN, $echo);
 }
 
 sub _merge_opt {
@@ -146,7 +145,6 @@ sub _merge_opt {
     ) or _show_usage(2);
 
     $config->{length} ||= 8;
-    $config->{digest} ||= 'sha1';
 }
 
 sub _show_usage {
