@@ -4,7 +4,6 @@ use warnings;
 use Getopt::Long qw/GetOptionsFromArray/;
 use IO::Stty;
 use Digest::HMAC_SHA1 qw//;
-use POSIX 'strftime';
 
 our $VERSION = 0.01;
 
@@ -37,9 +36,13 @@ sub run {
 sub _logging_history {
     my ($config, @argv) = @_;
 
+    require POSIX;
+    my $log_time = POSIX::strftime("%Y/%m/%d %H:%M:%S", localtime);
+    my $log_line = join ' ', @argv;
+
     open my $fh, '>>', $config->{log}
         or die "could not open $config->{log}: $!";
-    print $fh strftime("%Y/%m/%d %H:%M:%S", localtime). " @argv". "\n";
+    print $fh $log_time. " $log_line\n";
     close $fh;
 }
 
