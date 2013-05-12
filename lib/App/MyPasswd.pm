@@ -99,10 +99,12 @@ _INPUT:
     print "Input master password:\n";
     $input = <STDIN> || '';
     chomp($input);
+    print "$input\n" if $config->{show_input};
 
     print "Again, input same master password:\n";
     $input_again = <STDIN> || '';
     chomp($input_again);
+    print "$input\n" if $config->{show_input};
 
     if ($input ne $input_again) {
         print "[Err] Your passwords are NOT same. Try to input again.\n\n";
@@ -111,8 +113,6 @@ _INPUT:
     }
 
     _stty('echo');
-
-    print "$input\n";
 
     $config->{master_password} = $input;
 }
@@ -135,6 +135,7 @@ sub _merge_opt {
         'only-lc'     => \$config->{only_lc},
         'no-symbol'   => \$config->{no_symbol},
         'log=s'       => \$config->{log},
+        'show-input'  => \$config->{show_input},
         'h|help'      => sub {
             _show_usage(1);
         },

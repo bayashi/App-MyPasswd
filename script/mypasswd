@@ -24,6 +24,7 @@ mypasswd - generate your password
          --only-lc       used only lower case
          --no-symbol     switch a symbol to number
          --log           log file path of execute history
+         --show-input    show your inputed master password
     -h,  --help          show this help
     -v,  --version       show the version
 
