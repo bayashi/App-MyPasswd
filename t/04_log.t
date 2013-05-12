@@ -24,7 +24,7 @@ my $mypasswd = App::MyPasswd->new;
 
     is $password, 'DVLIgmxk';
     ok -e $filename;
-    open my $rfh, '<', $filename or die $!;
+    open my $rfh, '<', $filename;
     my $log = do { local $/; <$rfh> };
     close $rfh;
     like $log, qr/--log $filename/;
