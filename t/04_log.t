@@ -30,4 +30,23 @@ my $mypasswd = App::MyPasswd->new;
     like $log, qr/--log $filename/;
 }
 
+{
+    open my $IN, '<', \"a\na\n";
+    local *STDIN = *$IN;
+
+    my $output = '';
+    open my $OUT, '>', \$output;
+    local *STDOUT = *$OUT;
+
+    my $no_exists_log = "/no/exists/path/to/file/8gh423d2t";
+    eval {
+        $mypasswd->run("--log" => $no_exists_log);
+    };
+    like $@, qr/could not open/;
+    like $@, qr/$no_exists_log/;
+
+    close $IN;
+    close $OUT;
+}
+
 done_testing;
