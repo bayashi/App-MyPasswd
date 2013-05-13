@@ -5,7 +5,7 @@ use Getopt::Long qw/GetOptionsFromArray/;
 use IO::Stty;
 use Digest::HMAC_SHA1 qw//;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 sub new {
     my $class = shift;
