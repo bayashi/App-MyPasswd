@@ -105,23 +105,26 @@ sub _only_case {
 sub _input_master_password {
     my $config = shift;
 
-    my($input, $input_again);
-
     local $SIG{INT} = sub { _stty('echo'); exit; };
     _stty('-echo');
 
+    my ($input, $input_again) = _prompt($config);
+
+    _stty('echo');
+
+    $config->{master_password} = $input;
+}
+
+sub _prompt {
+    my $config = shift;
+
+    my ($input, $input_again);
+
 _INPUT:
-    print "Input master password:\n";
-    $input = <STDIN>;
-    chomp($input);
-    print "$input\n" if $config->{show_input};
+    $input       = _stdin($config, "Input master password:\n");
+    $input_again = _stdin($config, "Again, input same master password:\n");
 
-    print "Again, input same master password:\n";
-    $input_again = <STDIN>;
-    chomp($input_again);
-    print "$input\n" if $config->{show_input};
-
-    die "[Err] Empty input\n\n" if !$input || !$input_again;
+    die "[Err] Empty input\n\n" unless $input && $input_again;
 
     if ($input ne $input_again) {
         print "[Err] Your passwords are NOT same. Try to input again.\n\n";
@@ -129,9 +132,17 @@ _INPUT:
         goto _INPUT;
     }
 
-    _stty('echo');
+    return($input, $input_again);
+}
 
-    $config->{master_password} = $input;
+sub _stdin {
+    my ($config, $msg) = @_;
+
+    print "Input master password:\n";
+    my $input = <STDIN>;
+    chomp($input);
+    print "$input\n" if $config->{show_input};
+    return $input;
 }
 
 sub _stty {
