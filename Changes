@@ -1,5 +1,8 @@
 Revision history for Perl extension App::MyPasswd
 
+0.03    Mon May 13 23:11:58 JST 2013
+        - tiny refactor
+
 0.02    Mon May 13 22:55:52 JST 2013
         - stop warnings in tests
         - fix broken tests for Win32
