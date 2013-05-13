@@ -1,5 +1,8 @@
 Revision history for Perl extension App::MyPasswd
 
+0.04    Mon May 13 23:21:13 JST 2013
+        - set `stty echo` before dying
+
 0.03    Mon May 13 23:11:58 JST 2013
         - tiny refactor
 
