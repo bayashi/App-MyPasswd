@@ -121,6 +121,8 @@ _INPUT:
     chomp($input_again);
     print "$input\n" if $config->{show_input};
 
+    die "[Err] Empty input\n\n" if !$input || !$input_again;
+
     if ($input ne $input_again) {
         print "[Err] Your passwords are NOT same. Try to input again.\n\n";
         $input = $input_again = '';
