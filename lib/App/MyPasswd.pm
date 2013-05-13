@@ -124,7 +124,10 @@ _INPUT:
     $input       = _stdin($config, "Input master password:\n");
     $input_again = _stdin($config, "Again, input same master password:\n");
 
-    die "[Err] Empty input\n\n" unless $input && $input_again;
+    unless ($input && $input_again) {
+        _stty('echo');
+        die "[Err] Empty input\n\n";
+    }
 
     if ($input ne $input_again) {
         print "[Err] Your passwords are NOT same. Try to input again.\n\n";
