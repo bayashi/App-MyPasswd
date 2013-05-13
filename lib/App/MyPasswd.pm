@@ -162,6 +162,7 @@ sub _merge_opt {
         },
     ) or _show_usage(2);
 
+    $config->{salt} = '' unless defined $config->{salt};
     $config->{length} ||= 8;
 }
 
